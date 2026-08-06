@@ -14,6 +14,7 @@ import { ClassManagement } from './components/admin/ClassManagement';
 import { FeeManagement } from './components/admin/FeeManagement';
 import { FinancialDashboard } from './components/admin/FinancialDashboard';
 import { UserCredentialsManager } from './components/admin/UserCredentialsManager';
+import { AuditLogsViewer } from './components/admin/AuditLogsViewer';
 
 // Teacher components
 import { TeacherOverview } from './components/teacher/TeacherOverview';
@@ -62,6 +63,8 @@ const MainLayout: React.FC = () => {
             return <FinancialDashboard />;
           case 'credentials':
             return <UserCredentialsManager />;
+          case 'audit-logs':
+            return <AuditLogsViewer />;
           case 'notices':
             return <NoticeBoard />;
           default:

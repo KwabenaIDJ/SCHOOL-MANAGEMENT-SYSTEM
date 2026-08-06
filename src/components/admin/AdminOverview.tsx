@@ -327,57 +327,8 @@ export const AdminOverview: React.FC = () => {
         <MetricCard title="Active Classrooms" value={totalClasses} change="Creche - JHS 3" changeType="neutral" icon={Building2} color="amber" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:col-span-2">
-          <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4 font-heading">Tuition & Revenue Collection (GH₵)</h3>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueTrendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.15} />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} tickFormatter={v => `GH₵${v / 1000}k`} />
-                <Tooltip />
-                <Area type="monotone" dataKey="revenue" stroke="#1d4ed8" fill="#1d4ed8" fillOpacity={0.1} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4 font-heading">Student Attendance</h3>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={attendanceByGradeData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.15} />
-                <XAxis dataKey="grade" tick={{ fontSize: 9 }} interval={0} angle={-35} textAnchor="end" height={45} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Bar dataKey="present" fill="#1d4ed8" />
-                <Bar dataKey="absent" fill="#ef4444" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h3 className="text-base font-black text-slate-900 mb-3 font-heading">Recently Enrolled Students</h3>
-          {[...filteredStudents].reverse().slice(0, 5).map(st => (
-            <div key={st.id} className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0">
-              <div className="flex items-center gap-3">
-                <img src={st.avatar} alt={st.name} className="h-9 w-9 rounded-full object-cover" />
-                <div>
-                  <p className="text-xs font-bold text-slate-900">{st.name}</p>
-                  <p className="text-[11px] text-slate-500">{st.gradeLevel}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* 1.5-Month Cutoff Overdue Tuition & Direct Parent Call List */}
-        <div className="rounded-2xl border border-rose-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
+      {/* 1.5-Month Cutoff Overdue Tuition & Direct Parent Call List */}
+      <div className="rounded-2xl border border-rose-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
           <div>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-rose-100 pb-2">
               <div>
@@ -446,7 +397,6 @@ export const AdminOverview: React.FC = () => {
               Scroll down to view all {owingStudents.length} owing students
             </span>
             <span className="text-slate-500 font-normal">Use mouse scroll / swipe</span>
-          </div>
         </div>
       </div>
 

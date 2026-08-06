@@ -15,7 +15,8 @@ import {
   ExpenseRecord,
   IncomeRecord,
   DepartmentBudget,
-  UserCredentialItem
+  UserCredentialItem,
+  AuditLogEntry
 } from '../types';
 import {
   INITIAL_STUDENTS,
@@ -151,6 +152,11 @@ interface SchoolDataContextType {
   userCredentials: UserCredentialItem[];
   updateUserPassword: (id: string, newPassword: string) => void;
 
+  // Audit Logs Engine
+  auditLogs: AuditLogEntry[];
+  addAuditLog: (action: string, details: string, severity?: 'info' | 'warning' | 'danger') => void;
+  clearAuditLogs: () => void;
+
   // Clear all data helper
   clearAllClassesAndSubjects: () => void;
 
@@ -200,16 +206,63 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [incomes, setIncomes] = useState<IncomeRecord[]>(() => loadInitial('sms_incomes', INITIAL_INCOMES));
   const [departmentBudgets, setDepartmentBudgets] = useState<DepartmentBudget[]>(() => loadInitial('sms_budgets', INITIAL_BUDGETS));
   const [userCredentials, setUserCredentials] = useState<UserCredentialItem[]>(() => loadInitial('sms_credentials', INITIAL_USER_CREDENTIALS));
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(() => loadInitial('sms_audit_logs', []));
 
   useEffect(() => {
     localStorage.setItem('sms_credentials', JSON.stringify(userCredentials));
   }, [userCredentials]);
+
+  useEffect(() => {
+    localStorage.setItem('sms_audit_logs', JSON.stringify(auditLogs));
+  }, [auditLogs]);
+
+  const addAuditLog = (action: string, details: string, severity: 'info' | 'warning' | 'danger' = 'info') => {
+    let userName = 'System Administrator';
+    let userRole: 'admin' | 'teacher' | 'parent' = 'admin';
+    let userId = 'usr-admin-01';
+
+    try {
+      const savedUser = localStorage.getItem('app_current_user');
+      const savedRole = localStorage.getItem('app_user_role');
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        userName = parsed.name || userName;
+        userId = parsed.id || userId;
+      }
+      if (savedRole && ['admin', 'teacher', 'parent'].includes(savedRole)) {
+        userRole = savedRole as any;
+      }
+    } catch (e) {}
+
+    const now = new Date();
+    const timestampStr = `${now.toISOString().split('T')[0]} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+    const newLog: AuditLogEntry = {
+      id: `log-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      timestamp: timestampStr,
+      userId,
+      userName,
+      userRole,
+      action,
+      details,
+      severity,
+      ipAddress: '127.0.0.1 (Local Client)'
+    };
+
+    setAuditLogs(prev => [newLog, ...prev]);
+  };
+
+  const clearAuditLogs = () => {
+    setAuditLogs([]);
+    localStorage.removeItem('sms_audit_logs');
+  };
 
   const updateUserPassword = (id: string, newPassword: string) => {
     const todayStr = new Date().toISOString().split('T')[0];
     setUserCredentials(prev =>
       prev.map(c => (c.id === id ? { ...c, password: newPassword, lastChanged: todayStr } : c))
     );
+    addAuditLog('Updated User Password', `Updated login password for account (ID: ${id})`, 'warning');
   };
 
   useEffect(() => {
@@ -966,6 +1019,9 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         promoteClassStudents,
         userCredentials,
         updateUserPassword,
+        auditLogs,
+        addAuditLog,
+        clearAuditLogs,
         clearAllClassesAndSubjects,
         resetDataToDefault
       }}

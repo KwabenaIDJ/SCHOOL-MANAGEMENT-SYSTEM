@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   PieChart,
   ShieldAlert,
+  ShieldCheck,
   LogOut
 } from 'lucide-react';
 
@@ -48,6 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           { id: 'fees', label: 'Fee Management', icon: Wallet },
           { id: 'finances', label: 'Financials & Budgeting', icon: PieChart },
           { id: 'credentials', label: 'Passwords & Accounts', icon: ShieldAlert },
+          { id: 'audit-logs', label: 'System Audit Logs', icon: ShieldCheck },
           { id: 'notices', label: 'Announcements', icon: Bell }
         ];
       case 'teacher':

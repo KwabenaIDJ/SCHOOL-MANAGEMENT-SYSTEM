@@ -39,7 +39,7 @@ import {
 export const FinancialDashboard: React.FC = () => {
   const { feeRecords, expenses, incomes, departmentBudgets, addExpense, deleteExpense, addIncome, deleteIncome, addOrUpdateDepartmentBudget, deleteDepartmentBudget, currentTerm } = useSchoolData();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'expenses' | 'revenue' | 'other_income' | 'budgets'>('overview');
+  const [activeTab, setActiveTab] = useState<'expenses' | 'revenue' | 'other_income' | 'budgets'>('expenses');
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [isAddIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
   const [isAddBudgetModalOpen, setIsAddBudgetModalOpen] = useState(false);
@@ -427,16 +427,6 @@ export const FinancialDashboard: React.FC = () => {
       {/* Sub-Navigation Tabs */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
         <button
-          onClick={() => setActiveTab('overview')}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-            activeTab === 'overview'
-              ? 'bg-blue-700 text-white shadow-sm'
-              : 'text-slate-600 hover:bg-blue-50 dark:text-slate-400 dark:hover:bg-slate-800'
-          }`}
-        >
-          <BarChart3 className="h-4 w-4" /> Financial Overview & Charts
-        </button>
-        <button
           onClick={() => setActiveTab('expenses')}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === 'expenses'
@@ -478,100 +468,7 @@ export const FinancialDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* Tab 1: Overview & Charts */}
-      {activeTab === 'overview' && (
-        <div className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* Income vs Expenses Trend Chart */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    Income vs Expense Trends (GH₵)
-                  </h3>
-                  <p className="text-xs text-slate-500">Monthly revenue collection vs operational expenditures</p>
-                </div>
-              </div>
-
-              <div className="h-72 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={monthlyTrendData}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1d4ed8" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#1d4ed8" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#e11d48" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#e11d48" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip formatter={(val: number) => `GH₵ ${val.toLocaleString()}`} />
-                    <Legend />
-                    <Area type="monotone" dataKey="revenue" name="Income (GH₵)" stroke="#1d4ed8" fillOpacity={1} fill="url(#colorRevenue)" />
-                    <Area type="monotone" dataKey="expenses" name="Expenses (GH₵)" stroke="#e11d48" fillOpacity={1} fill="url(#colorExpenses)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Expense Category Breakdown Chart */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    Expense Allocation by Category
-                  </h3>
-                  <p className="text-xs text-slate-500">Breakdown of operational spend across categories</p>
-                </div>
-              </div>
-
-              <div className="h-72 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={expenseCategoryBreakdown}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                    <XAxis dataKey="category" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip formatter={(val: number) => `GH₵ ${val.toLocaleString()}`} />
-                    <Bar dataKey="amount" name="Amount (GH₵)" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Expense Breakdown Pill Summary */}
-          <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-5 dark:border-slate-800 dark:bg-slate-900/60">
-            <h4 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Layers className="h-4 w-4 text-blue-700 dark:text-blue-400" />
-              Financial Balance Breakdown Summary
-            </h4>
-            <div className="mt-3 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-xl bg-white p-3 shadow-xs dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                <span className="text-[11px] font-bold text-slate-500 uppercase">Total Billed Tuition</span>
-                <p className="font-mono text-lg font-extrabold text-slate-900 dark:text-white mt-1">
-                  {formatCurrency(totalTuitionBilled)}
-                </p>
-              </div>
-              <div className="rounded-xl bg-white p-3 shadow-xs dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                <span className="text-[11px] font-bold text-emerald-600 uppercase">Total Collected</span>
-                <p className="font-mono text-lg font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
-                  {formatCurrency(totalTuitionCollected)}
-                </p>
-              </div>
-              <div className="rounded-xl bg-white p-3 shadow-xs dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                <span className="text-[11px] font-bold text-rose-600 uppercase">Outstanding Fees Due</span>
-                <p className="font-mono text-lg font-extrabold text-rose-600 dark:text-rose-400 mt-1">
-                  {formatCurrency(totalTuitionOutstanding)}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Tab: School Expenses Table */}
 
       {/* Tab 2: School Expenses Table */}
       {activeTab === 'expenses' && (

@@ -190,3 +190,15 @@ export interface UserCredentialItem {
   associatedInfo: string;
   lastChanged: string;
 }
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  userId: string;
+  userName: string;
+  userRole: UserRole;
+  action: string;
+  details: string;
+  severity: 'info' | 'warning' | 'danger';
+  ipAddress?: string;
+}
