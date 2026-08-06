@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { UserRole } from '../../types';
 import {
   LayoutDashboard,
   Users,
@@ -14,7 +15,8 @@ import {
   Clock,
   ChevronLeft,
   PieChart,
-  ShieldAlert
+  ShieldAlert,
+  LogOut
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -30,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose
 }) => {
-  const { role } = useAuth();
+  const { role, setRole, logout, currentUser } = useAuth();
 
   // Navigation Items per Role
   const getNavItems = () => {
@@ -63,14 +65,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           { id: 'overview', label: 'Children Overview', icon: LayoutDashboard },
           { id: 'report-card', label: 'Terminal Report Card', icon: FileText },
           { id: 'notices', label: 'School Announcements', icon: Bell }
-        ];
-      case 'student':
-        return [
-          { id: 'overview', label: 'Academic Dashboard', icon: LayoutDashboard },
-          { id: 'assignments', label: 'Assignments', icon: BookOpen },
-          { id: 'timetable', label: 'My Timetable', icon: Clock },
-          { id: 'report-card', label: 'Terminal Report Card', icon: FileText },
-          { id: 'notices', label: 'Notice Board', icon: Bell }
         ];
     }
   };
@@ -144,6 +138,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
               );
             })}
           </nav>
+        </div>
+
+        {/* Mobile & Desktop User Account, Role Switcher & Logout Footer */}
+        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+          <div className="flex items-center gap-3 px-2">
+            <img src={currentUser.avatar} alt={currentUser.name} className="h-9 w-9 rounded-xl object-cover ring-2 ring-blue-600/40" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{currentUser.name}</p>
+              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 capitalize">{role} View</p>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <div className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Switch Role View</div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {(['admin', 'teacher', 'parent'] as UserRole[]).map(r => (
+                <button
+                  key={r}
+                  onClick={() => {
+                    setRole(r);
+                    onClose();
+                  }}
+                  className={`rounded-lg py-1.5 px-2 text-[10px] font-bold capitalize transition-all cursor-pointer ${
+                    role === r
+                      ? 'bg-blue-700 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              logout();
+              onClose();
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-rose-50 py-2.5 text-xs font-bold text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 transition-colors cursor-pointer"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Sign Out / Logout</span>
+          </button>
         </div>
       </aside>
     </>

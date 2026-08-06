@@ -48,13 +48,6 @@ const DEMO_USERS: Record<UserRole, UserProfile> = {
     role: 'parent',
     avatar: getInitialsAvatar('Parent Guardian'),
     phone: '+233 24 000 0000'
-  },
-  student: {
-    id: 'std-101',
-    name: 'Enrolled Student',
-    email: 'student@kidshinemontessori.edu.gh',
-    role: 'student',
-    avatar: getInitialsAvatar('Enrolled Student')
   }
 };
 
@@ -65,7 +58,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [role, setRoleState] = useState<UserRole>(() => {
     const savedRole = localStorage.getItem('app_user_role') as UserRole;
-    return savedRole && ['admin', 'teacher', 'parent', 'student'].includes(savedRole)
+    return savedRole && ['admin', 'teacher', 'parent'].includes(savedRole)
       ? savedRole
       : 'admin';
   });

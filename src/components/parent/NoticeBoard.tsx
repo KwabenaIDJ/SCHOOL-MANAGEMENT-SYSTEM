@@ -42,7 +42,7 @@ export const NoticeBoard: React.FC = () => {
     });
 
     setIsAddModalOpen(false);
-    setNewNotice({ title: '', category: 'Academic', content: '', targetRoles: ['admin', 'teacher', 'parent', 'student'] });
+    setNewNotice({ title: '', category: 'Academic', content: '', targetRoles: ['admin', 'teacher', 'parent'] });
   };
 
   const handleDeleteNotice = (id: string, title: string) => {

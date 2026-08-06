@@ -34,8 +34,7 @@ interface HeaderProps {
 const roleBadgeMap: Record<UserRole, { label: string; icon: any; color: string }> = {
   admin: { label: 'Administrator', icon: ShieldAlert, color: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' },
   teacher: { label: 'Teacher', icon: BookOpen, color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300' },
-  parent: { label: 'Parent / Guardian', icon: Users, color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' },
-  student: { label: 'Student', icon: GraduationCap, color: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' }
+  parent: { label: 'Parent / Guardian', icon: Users, color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' }
 };
 
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
@@ -91,8 +90,8 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
           </button>
         )}
 
-        <div>
-          <h1 className="text-base font-black text-blue-950 dark:text-white sm:text-lg">
+        <div className="min-w-0 flex-1 sm:flex-initial">
+          <h1 className="text-xs font-black text-blue-950 dark:text-white sm:text-base truncate max-w-[110px] xs:max-w-[150px] sm:max-w-none">
             Kidshine Montessori School
           </h1>
           <p className="hidden text-xs text-blue-600 dark:text-blue-400 font-semibold sm:block">
@@ -102,9 +101,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
       </div>
 
       {/* Right side: Term Switcher & Controls */}
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-1.5 sm:gap-4">
         {/* Global Academic Term Switcher with Lock Button */}
-        <div className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 transition-all ${
+        <div className={`hidden sm:flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 transition-all ${
           isTermLocked
             ? 'border-amber-300 bg-amber-50 dark:border-amber-700/50 dark:bg-amber-950/40'
             : 'border-blue-200 bg-blue-50 dark:border-blue-900/40 dark:bg-blue-950/40'
@@ -260,7 +259,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                 Switch Role View
               </div>
               <div className="mt-1 space-y-1">
-                {(['admin', 'teacher', 'parent', 'student'] as UserRole[]).map(r => {
+                {(['admin', 'teacher', 'parent'] as UserRole[]).map(r => {
                   const info = roleBadgeMap[r];
                   const Icon = info.icon;
                   const isSelected = role === r;

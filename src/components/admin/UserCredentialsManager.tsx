@@ -74,7 +74,6 @@ export const UserCredentialsManager: React.FC = () => {
   const adminCount = userCredentials.filter(c => c.role === 'admin').length;
   const teacherCount = userCredentials.filter(c => c.role === 'teacher').length;
   const parentCount = userCredentials.filter(c => c.role === 'parent').length;
-  const studentCount = userCredentials.filter(c => c.role === 'student').length;
 
   const columns: Column<UserCredentialItem>[] = [
     {
@@ -203,37 +202,27 @@ export const UserCredentialsManager: React.FC = () => {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-5">
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total System Users</p>
-          <h3 className="mt-1 text-2xl font-black text-gray-900 dark:text-white">{totalUsers}</h3>
-        </div>
-
-        <div className="rounded-2xl border border-purple-200 bg-purple-50/50 p-4 shadow-sm dark:border-purple-900/40 dark:bg-purple-950/20">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Admin Accounts</p>
-          <h3 className="mt-1 text-2xl font-black text-purple-700 dark:text-purple-300">{adminCount}</h3>
-        </div>
-
+      {/* Account KPI Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-4 shadow-sm dark:border-blue-900/40 dark:bg-blue-950/20">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Teacher Accounts</p>
-          <h3 className="mt-1 text-2xl font-black text-blue-700 dark:text-blue-300">{teacherCount}</h3>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Total User Accounts</p>
+          <h3 className="mt-1 text-2xl font-black text-blue-950 dark:text-white">{totalUsers}</h3>
+        </div>
+
+        <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-4 shadow-sm dark:border-indigo-900/40 dark:bg-indigo-950/20">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Teacher Accounts</p>
+          <h3 className="mt-1 text-2xl font-black text-indigo-700 dark:text-indigo-300">{teacherCount}</h3>
         </div>
 
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-sm dark:border-emerald-900/40 dark:bg-emerald-950/20">
           <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Parent Accounts</p>
           <h3 className="mt-1 text-2xl font-black text-emerald-700 dark:text-emerald-300">{parentCount}</h3>
         </div>
-
-        <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/20">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Student Accounts</p>
-          <h3 className="mt-1 text-2xl font-black text-amber-700 dark:text-amber-300">{studentCount}</h3>
-        </div>
       </div>
 
       {/* Role Filter Tabs */}
       <div className="flex items-center gap-2 border-b border-gray-100 pb-2 dark:border-gray-800 overflow-x-auto">
-        {(['All', 'admin', 'teacher', 'parent', 'student'] as const).map(tab => (
+        {(['All', 'admin', 'teacher', 'parent'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setRoleFilter(tab)}

@@ -99,22 +99,6 @@ const MainLayout: React.FC = () => {
           default:
             return <ParentOverview onNavigateTab={setActiveTab} />;
         }
-
-      case 'student':
-        switch (activeTab) {
-          case 'overview':
-            return <StudentOverview onNavigateTab={setActiveTab} />;
-          case 'assignments':
-            return <AssignmentTracker />;
-          case 'timetable':
-            return <StudentTimetable />;
-          case 'report-card':
-            return <ReportCardViewer />;
-          case 'notices':
-            return <NoticeBoard />;
-          default:
-            return <StudentOverview onNavigateTab={setActiveTab} />;
-        }
     }
   };
 

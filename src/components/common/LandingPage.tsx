@@ -57,19 +57,9 @@ const PORTAL_CARDS: PortalCardItem[] = [
     subtitle: 'Parent Monitoring Portal',
     description: 'Track your child\'s academic performance, download official terminal report cards, and view tuition balances.',
     icon: Users,
-    defaultEmail: 'e.mensah@gmail.com',
+    defaultEmail: 'parent@kidshinemontessori.edu.gh',
     badge: 'Guardian Access',
     features: ['Child Academic Performance', 'Printable Report Cards', 'Tuition Payment History', 'School Announcements']
-  },
-  {
-    role: 'student',
-    title: 'Student Portal',
-    subtitle: 'Learning & Schedule Portal',
-    description: 'Check class timetables, view assigned homework tasks, and track continuous assessment progress.',
-    icon: GraduationCap,
-    defaultEmail: 'kwame.mensah@kidshinemontessori.edu.gh',
-    badge: 'Student Access',
-    features: ['Class Timetable & Schedule', 'Homework & Assignments', 'Notice & Event Board', 'Personal Academic Profile']
   }
 ];
 
@@ -234,7 +224,7 @@ export const LandingPage: React.FC = () => {
           <p className="text-xs font-semibold text-slate-500 mt-1">Choose your role to access Kidshine Montessori School Management System</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-3 max-w-5xl mx-auto">
           {PORTAL_CARDS.map(card => {
             const Icon = card.icon;
             return (

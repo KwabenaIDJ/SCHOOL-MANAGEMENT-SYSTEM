@@ -438,21 +438,9 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     };
     setFeeRecords(prev => [newFeeRecord, ...prev]);
 
-    // Automatically generate Student & Parent Access Passwords
+    // Automatically generate Parent & Guardian Access Password for the enrolled student
     const todayStr = new Date().toISOString().split('T')[0];
-    const studentPass = `STU-${Math.floor(1000 + Math.random() * 9000)}`;
     const parentPass = `PAR-${Math.floor(1000 + Math.random() * 9000)}`;
-
-    const newStudentCred: UserCredentialItem = {
-      id: `cred-stu-${Date.now()}`,
-      userId: id,
-      name: newStudent.name,
-      email: newStudent.email || `${newStudent.name.toLowerCase().replace(/[^a-z]/g, '.')}@kidshinemontessori.edu.gh`,
-      role: 'student',
-      password: studentPass,
-      associatedInfo: `Student • Class: ${newStudent.gradeLevel}`,
-      lastChanged: todayStr
-    };
 
     const guardianName = newStudent.guardianName || `Guardian of ${newStudent.name}`;
     const guardianEmail = newStudent.guardianEmail || `${guardianName.toLowerCase().replace(/[^a-z]/g, '.')}@gmail.com`;
@@ -468,7 +456,7 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       lastChanged: todayStr
     };
 
-    setUserCredentials(prev => [newStudentCred, newParentCred, ...prev]);
+    setUserCredentials(prev => [newParentCred, ...prev]);
   };
 
   const updateStudent = (id: string, updated: Partial<Student>) => {
