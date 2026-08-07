@@ -16,7 +16,9 @@ import {
   CheckCircle2,
   Building2,
   Sun,
-  Info
+  Info,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 interface PortalCardItem {
@@ -111,10 +113,13 @@ export const LandingPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [typedText, isDeleting, loopIndex]);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleOpenLogin = (card: PortalCardItem) => {
     setSelectedPortal(card);
     setSelectedTeacherId(teachers[0]?.id || '');
     setPassword('teacher123');
+    setShowPassword(false);
   };
 
   const handleConfirmLogin = (e: React.FormEvent) => {
@@ -336,14 +341,26 @@ export const LandingPage: React.FC = () => {
               </label>
               <div className="relative mt-1">
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Enter secret password..."
-                  className="w-full rounded-xl border border-slate-300 bg-white p-2.5 pl-9 text-xs font-bold text-slate-900 focus:border-blue-700 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white p-2.5 pl-9 pr-10 text-xs font-bold text-slate-900 focus:border-blue-700 focus:outline-none"
                 />
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+                  title={showPassword ? 'Hide Password' : 'Show Password'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-slate-600" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-slate-400" />
+                  )}
+                </button>
               </div>
             </div>
 
