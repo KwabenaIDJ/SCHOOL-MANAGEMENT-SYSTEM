@@ -142,35 +142,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
 
-        {/* Mobile & Desktop User Account, Role Switcher & Logout Footer */}
+        {/* Mobile & Desktop User Account & Logout Footer */}
         <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
           <div className="flex items-center gap-3 px-2">
             <img src={currentUser.avatar} alt={currentUser.name} className="h-9 w-9 rounded-xl object-cover ring-2 ring-blue-600/40" />
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{currentUser.name}</p>
-              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 capitalize">{role} View</p>
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <div className="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Switch Role View</div>
-            <div className="grid grid-cols-3 gap-1.5">
-              {(['admin', 'teacher', 'parent'] as UserRole[]).map(r => (
-                <button
-                  key={r}
-                  onClick={() => {
-                    setRole(r);
-                    onClose();
-                  }}
-                  className={`rounded-lg py-1.5 px-2 text-[10px] font-bold capitalize transition-all cursor-pointer ${
-                    role === r
-                      ? 'bg-blue-700 text-white shadow-xs'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
+              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 capitalize">{role} Account</p>
             </div>
           </div>
 

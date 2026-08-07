@@ -71,7 +71,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
     const savedUser = localStorage.getItem('app_current_user');
     if (savedUser) {
-      try { return JSON.parse(savedUser); } catch (e) {}
+      try {
+        const parsed = JSON.parse(savedUser);
+        if (parsed && parsed.role === role) return parsed;
+      } catch (e) {}
     }
     return DEMO_USERS[role];
   });
@@ -81,6 +84,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setRole = (newRole: UserRole) => {
     setRoleState(newRole);
     localStorage.setItem('app_user_role', newRole);
+    const updatedUser = DEMO_USERS[newRole];
+    setCurrentUser(updatedUser);
+    localStorage.setItem('app_current_user', JSON.stringify(updatedUser));
   };
 
   const login = (selectedRole: UserRole, customUser?: UserProfile) => {
