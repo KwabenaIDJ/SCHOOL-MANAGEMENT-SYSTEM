@@ -5,6 +5,7 @@ import { SchoolDataProvider } from './context/SchoolDataContext';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { LandingPage } from './components/common/LandingPage';
+import { HelpTourModal } from './components/common/HelpTourModal';
 
 // Admin components
 import { AdminOverview } from './components/admin/AdminOverview';
@@ -35,6 +36,7 @@ const MainLayout: React.FC = () => {
   const { role, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   if (!isAuthenticated) {
     return <LandingPage />;
@@ -106,7 +108,7 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors">
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-950 font-sans transition-colors overflow-hidden">
       {/* Sidebar Navigation */}
       <Sidebar
         activeTab={activeTab}
@@ -117,13 +119,24 @@ const MainLayout: React.FC = () => {
 
       {/* Main Content Workspace */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <Header
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          onOpenTour={() => setIsTourOpen(true)}
+        />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-7xl">
             {renderRoleContent()}
           </div>
         </main>
       </div>
+
+      {/* Interactive System Walkthrough Tour */}
+      <HelpTourModal
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        role={role}
+        onNavigateTab={setActiveTab}
+      />
     </div>
   );
 };
