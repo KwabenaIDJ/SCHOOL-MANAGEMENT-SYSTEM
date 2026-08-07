@@ -213,6 +213,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
           )}
         </div>
 
+
         {/* IDJ TECH SOLUTIONS Technical Support Button */}
         <button
           onClick={() => {
