@@ -40,6 +40,7 @@ export const AdminOverview: React.FC = () => {
     gradeLevel: string;
   } | null>(null);
   const [smsSentSuccess, setSmsSentSuccess] = useState(false);
+  const [showGraceListPreview, setShowGraceListPreview] = useState(false);
 
   const availableClassOptions = [...GHANA_CLASS_HIERARCHY];
 
@@ -103,8 +104,10 @@ export const AdminOverview: React.FC = () => {
   const startDateObj = termConfig?.startDate ? new Date(termConfig.startDate) : new Date();
   const todayObj = new Date();
   const diffDays = Math.max(1, Math.ceil(Math.abs(todayObj.getTime() - startDateObj.getTime()) / (1000 * 60 * 60 * 24)));
-  const elapsedMonths = Math.round((diffDays / 30) * 10) / 10;
-  const isFeeAlertTriggered = elapsedMonths >= (termConfig?.alertThresholdMonths || 2);
+  const alertThresholdMonths = termConfig?.alertThresholdMonths || 1.5;
+  const thresholdDays = Math.round(alertThresholdMonths * 30);
+  const isFeeAlertTriggered = diffDays >= thresholdDays;
+  const progressPercent = Math.min(100, Math.round((diffDays / thresholdDays) * 100));
 
   const handleOpenSMSModal = (student: any) => {
     setSmsModalTarget({
@@ -195,16 +198,7 @@ export const AdminOverview: React.FC = () => {
               </select>
             </div>
 
-            <button
-              onClick={() => {
-                setTempTermConfig(termConfig);
-                setIsTermConfigModalOpen(true);
-              }}
-              className="inline-flex items-center gap-1.5 rounded-2xl bg-amber-400 px-3.5 py-3 text-xs font-black text-slate-950 shadow-md hover:bg-amber-300 transition-all cursor-pointer"
-              title="Configure Term Months & Fee Alert Threshold"
-            >
-              <Calendar className="h-4 w-4" /> Term Settings
-            </button>
+
           </div>
         </div>
       </div>
@@ -328,51 +322,148 @@ export const AdminOverview: React.FC = () => {
       </div>
 
       {/* 1.5-Month Cutoff Overdue Tuition & Direct Parent Call List */}
-      <div className="rounded-2xl border border-rose-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between">
-          <div>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-rose-100 pb-2">
-              <div>
-                <h3 className="text-base font-black text-slate-900 flex items-center gap-2 font-heading">
-                  <AlertCircle className="h-4 w-4 text-rose-600" /> Overdue Tuition Balances (GH₵)
+      {!isFeeAlertTriggered ? (
+        /* PHASE 1: Grace Period Active (First 1.5 Months / < 45 Days) */
+        <div className="rounded-2xl border border-blue-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 transition-all">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-blue-100 pb-3 dark:border-slate-800">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h3 className="text-base font-black text-slate-900 dark:text-white font-heading">
+                  Tuition Collection & Grace Period Status
                 </h3>
-                <p className="text-[11px] font-semibold text-slate-500">
-                  Term Started: <strong className="text-slate-800">{termConfig?.startDate}</strong> • Threshold: <strong className="text-rose-700">Month {termConfig?.alertThresholdMonths} of {termConfig?.termDurationMonths}</strong>
-                </p>
               </div>
+              <p className="text-[11px] font-semibold text-slate-500 mt-0.5">
+                Term Started: <strong className="text-slate-800 dark:text-white">{termConfig?.startDate}</strong> • Threshold: <strong className="text-blue-700 dark:text-blue-400">{alertThresholdMonths} Months ({thresholdDays} Days)</strong>
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setTempTermConfig(termConfig);
+                setIsTermConfigModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Configure Term Start Date & Overdue Threshold"
+            >
+              <Calendar className="h-3.5 w-3.5 text-blue-700" />
+              <span>Term Settings</span>
+            </button>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <span>⏱️ Grace Period Timeline ({diffDays} of {thresholdDays} Days Elapsed)</span>
+              <span className="text-emerald-600 font-extrabold">{Math.max(0, thresholdDays - diffDays)} Days Remaining</span>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-blue-600 to-emerald-500 transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+
+            <div className="rounded-xl bg-blue-50/70 border border-blue-100 p-3 text-xs text-blue-900 font-medium flex flex-wrap items-center justify-between gap-2 dark:border-slate-800 dark:bg-slate-800/60 dark:text-blue-200">
+              <span>
+                ℹ️ Parents have a <strong>{alertThresholdMonths}-Month Grace Period</strong> before urgent call alerts trigger on this dashboard.
+              </span>
+              <span className="font-extrabold text-blue-800 dark:text-blue-300">
+                {owingStudents.length} Students Currently Owing {formatCurrency(totalOutstanding)}
+              </span>
+            </div>
+
+            <div className="pt-1 flex justify-end">
+              <button
+                onClick={() => setShowGraceListPreview(!showGraceListPreview)}
+                className="inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:underline dark:text-blue-400 cursor-pointer"
+              >
+                <span>{showGraceListPreview ? 'Hide Early Preview' : `Preview Owing Students (${owingStudents.length})`}</span>
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showGraceListPreview ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+
+            {/* Early Preview Container */}
+            {showGraceListPreview && (
+              <div className="mt-3 max-h-[300px] overflow-y-auto space-y-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+                {owingStudents.map(st => (
+                  <div key={st.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-800/50">
+                    <div className="flex items-center gap-2.5">
+                      <img src={st.avatar} alt={st.name} className="h-8 w-8 rounded-full object-cover border border-slate-200" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">
+                          {st.name} <span className="text-[10px] text-slate-500">({st.gradeLevel})</span>
+                        </p>
+                        <p className="text-[11px] font-black text-rose-600 font-currency">
+                          Owing: {formatCurrency(st.feeBalance)}
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href={`tel:${st.guardianPhone}`}
+                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white hover:bg-emerald-700 text-decoration-none"
+                    >
+                      <PhoneCall className="h-3 w-3" />
+                      <span>Call Parent</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* PHASE 2: Overdue Threshold Reached (After 1.5 Months / >= 45 Days) */
+        <div className="rounded-2xl border border-rose-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between transition-all">
+          <div>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-rose-100 pb-2 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="flex h-3 w-3 rounded-full bg-rose-600 animate-ping"></span>
+                <div>
+                  <h3 className="text-base font-black text-rose-900 dark:text-rose-400 flex items-center gap-2 font-heading">
+                    <AlertCircle className="h-5 w-5 text-rose-600" /> 🔴 OVERDUE TUITION CUTOFF REACHED
+                  </h3>
+                  <p className="text-[11px] font-semibold text-slate-500">
+                    Term Started: <strong className="text-slate-800 dark:text-white">{termConfig?.startDate}</strong> • {alertThresholdMonths}-Month Threshold Passed ({diffDays} Days)
+                  </p>
+                </div>
+              </div>
+
               <button
                 onClick={() => {
                   setTempTermConfig(termConfig);
                   setIsTermConfigModalOpen(true);
                 }}
-                className="rounded-lg bg-slate-100 border border-slate-200 p-1.5 text-xs text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
-                title="Configure Term Months & Fee Alert Threshold"
+                className="rounded-lg bg-rose-50 border border-rose-200 p-1.5 text-xs text-rose-800 hover:bg-rose-100 transition-colors cursor-pointer"
+                title="Configure Term Months & Threshold"
               >
-                <Calendar className="h-3.5 w-3.5 text-blue-700" />
+                <Calendar className="h-4 w-4 text-rose-700" />
               </button>
             </div>
 
-            <div className="mb-3 rounded-xl bg-rose-50 border border-rose-200 p-2 text-[11px] text-rose-800 font-medium flex items-center justify-between">
-              <span>⏱️ <strong>1.5 Months Passed:</strong> Contact parents below to collect tuition balance.</span>
-              <span className="rounded-full bg-rose-200/60 px-2 py-0.5 text-[10px] font-extrabold text-rose-900">
-                {owingStudents.length} Owing Students
+            <div className="mb-3 rounded-xl bg-rose-600 text-white p-3 text-xs font-bold shadow-xs flex flex-wrap items-center justify-between gap-2">
+              <span>🚨 <strong>{alertThresholdMonths} Months Passed:</strong> Contact the {owingStudents.length} owing parents below immediately to collect tuition balance!</span>
+              <span className="rounded-lg bg-white/20 px-2.5 py-1 text-xs font-black">
+                Total Owing: {formatCurrency(totalOutstanding)}
               </span>
             </div>
 
             {/* Scrollable container for all owing students */}
             <div className="max-h-[380px] overflow-y-auto space-y-3 pr-1.5 scrollbar-thin scrollbar-thumb-rose-300">
               {owingStudents.map(st => (
-                <div key={st.id} className="flex items-center justify-between rounded-xl border border-rose-100 bg-rose-50/60 p-3 hover:bg-rose-100/50 transition-colors">
+                <div key={st.id} className="flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50/70 p-3 hover:bg-rose-100/70 transition-colors dark:border-slate-800 dark:bg-slate-800/60">
                   <div className="flex items-center gap-3">
-                    <img src={st.avatar} alt={st.name} className="h-9 w-9 rounded-full object-cover border border-rose-200" />
+                    <img src={st.avatar} alt={st.name} className="h-9 w-9 rounded-full object-cover border border-rose-300" />
                     <div>
-                      <p className="text-xs font-bold text-slate-900">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">
                         {st.name} <span className="text-[11px] font-semibold text-slate-500">({st.gradeLevel})</span>
                       </p>
-                      <p className="text-xs font-black text-rose-700 font-currency">
+                      <p className="text-xs font-black text-rose-700 dark:text-rose-400 font-currency">
                         Owing: {formatCurrency(st.feeBalance)}
                       </p>
-                      <p className="text-[11px] font-bold text-slate-700">
-                        Parent: {st.guardianName} • <a href={`tel:${st.guardianPhone}`} className="text-blue-700 underline font-extrabold">{st.guardianPhone}</a>
+                      <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                        Parent: {st.guardianName} • <a href={`tel:${st.guardianPhone}`} className="text-blue-700 underline font-extrabold dark:text-blue-400">{st.guardianPhone}</a>
                       </p>
                     </div>
                   </div>
@@ -391,14 +482,15 @@ export const AdminOverview: React.FC = () => {
           </div>
 
           {/* Scroll down indicator banner */}
-          <div className="mt-3 pt-2 border-t border-rose-100 flex items-center justify-between text-[11px] font-bold text-rose-700 bg-rose-50/40 rounded-xl px-3 py-1.5">
+          <div className="mt-3 pt-2 border-t border-rose-100 flex items-center justify-between text-[11px] font-bold text-rose-700 bg-rose-50/40 rounded-xl px-3 py-1.5 dark:border-slate-800 dark:bg-slate-800/40 dark:text-rose-400">
             <span className="flex items-center gap-1">
               <ChevronDown className="h-3.5 w-3.5 animate-bounce text-rose-600" />
               Scroll down to view all {owingStudents.length} owing students
             </span>
             <span className="text-slate-500 font-normal">Use mouse scroll / swipe</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {smsModalTarget && (
         <Modal isOpen={!!smsModalTarget} onClose={() => setSmsModalTarget(null)} title={`Send SMS - ${smsModalTarget.studentName}`}>
