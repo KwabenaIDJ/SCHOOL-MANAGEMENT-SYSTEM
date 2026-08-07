@@ -65,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       case 'parent':
         return [
           { id: 'overview', label: 'Children Overview', icon: LayoutDashboard },
+          { id: 'assignments', label: 'Homework & Assignments', icon: BookOpen },
           { id: 'report-card', label: 'Terminal Report Card', icon: FileText },
           { id: 'notices', label: 'School Announcements', icon: Bell }
         ];
