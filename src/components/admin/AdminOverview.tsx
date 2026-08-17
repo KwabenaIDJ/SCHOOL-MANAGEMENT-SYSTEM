@@ -144,7 +144,7 @@ export const AdminOverview: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 p-6 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl bg-blue-900 border border-blue-800 p-6 text-white shadow-md">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between relative z-10">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -360,7 +360,7 @@ export const AdminOverview: React.FC = () => {
             {/* Progress Bar */}
             <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-blue-600 to-emerald-500 transition-all duration-500"
+                className="h-full rounded-full bg-blue-600 transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>

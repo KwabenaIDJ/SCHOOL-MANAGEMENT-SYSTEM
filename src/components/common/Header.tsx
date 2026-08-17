@@ -302,7 +302,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
       >
         <div className="space-y-4 text-xs">
           {/* Status Header */}
-          <div className="rounded-2xl bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 p-4 text-white shadow-md">
+          <div className="rounded-2xl bg-slate-900 border border-slate-800 p-4 text-white shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300">Official Software Consultant & Provider</span>

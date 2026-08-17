@@ -39,7 +39,7 @@ export const GhanaPromotionModal: React.FC<GhanaPromotionModalProps> = ({ isOpen
     >
       <div className="space-y-5">
         {/* Banner */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 p-4 text-white">
+        <div className="rounded-2xl bg-blue-900 border border-blue-800 p-4 text-white">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-6 w-6 text-amber-300" />
             <h3 className="text-base font-extrabold">
