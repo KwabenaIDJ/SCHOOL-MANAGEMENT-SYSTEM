@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSchoolData } from '../../context/SchoolDataContext';
 import { getInitialsAvatar } from '../../utils/avatar';
-import { UserRole } from '../../types';
 import { AboutSchoolModal } from './AboutSchoolModal';
 import {
   ShieldAlert,
@@ -18,7 +17,6 @@ import {
   Info,
   Eye,
   EyeOff,
-  UserCheck,
   ShieldCheck,
   KeyRound,
   LogIn
@@ -119,7 +117,6 @@ export const LandingPage: React.FC = () => {
           login('teacher');
         }
       } else {
-        // Default fallback to Admin
         login('admin');
       }
       setIsAuthenticating(false);
@@ -136,7 +133,7 @@ export const LandingPage: React.FC = () => {
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight text-slate-900 sm:text-xl">
+              <h1 className="text-lg font-black tracking-tight text-slate-900 sm:text-xl font-heading">
                 Kidshine Montessori School
               </h1>
               <p className="text-[11px] font-bold text-blue-700">
@@ -198,7 +195,7 @@ export const LandingPage: React.FC = () => {
       {/* Main Single Unified Portal Login Card - Centered */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 pt-8 pb-16 flex-1 w-full">
         <div className="max-w-md mx-auto">
-          {/* Solution 1: Single Unified Login Card */}
+          {/* Single Unified Login Card */}
           <div className="rounded-3xl border border-blue-200 bg-white p-6 sm:p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4 dark:border-slate-800">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-700 text-white shadow-md">
