@@ -500,7 +500,7 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
     const newParentCred: UserCredentialItem = {
       id: `cred-par-${Date.now() + 1}`,
-      userId: `parent-${Date.now()}`,
+      userId: `parent-${id}`,
       name: guardianName,
       email: guardianEmail,
       role: 'parent',
@@ -510,31 +510,78 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     };
 
     setUserCredentials(prev => [newParentCred, ...prev]);
+
+    addAuditLog(
+      'Enroll New Student',
+      `Enrolled ${newStudent.name} into ${newStudent.gradeLevel} and generated parent credentials for ${guardianName}.`,
+      'info'
+    );
   };
 
   const updateStudent = (id: string, updated: Partial<Student>) => {
+    const oldStudent = students.find(s => s.id === id);
     setStudents(prev => prev.map(s => (s.id === id ? { ...s, ...updated } : s)));
-    if (updated.name || updated.email || updated.gradeLevel) {
+    if (updated.name || updated.email || updated.gradeLevel || updated.guardianName || updated.guardianEmail) {
       setUserCredentials(prev =>
-        prev.map(c =>
-          c.userId === id
-            ? {
-                ...c,
-                name: updated.name || c.name,
-                email: updated.email || c.email,
-                associatedInfo: updated.gradeLevel ? `Student • Class: ${updated.gradeLevel}` : c.associatedInfo
-              }
-            : c
-        )
+        prev.map(c => {
+          if (c.userId === id) {
+            return {
+              ...c,
+              name: updated.name || c.name,
+              email: updated.email || c.email,
+              associatedInfo: updated.gradeLevel ? `Student • Class: ${updated.gradeLevel}` : c.associatedInfo
+            };
+          }
+          if (
+            c.userId === `parent-${id}` ||
+            (oldStudent &&
+              (c.email === oldStudent.guardianEmail ||
+                c.associatedInfo.includes(oldStudent.name)))
+          ) {
+            return {
+              ...c,
+              name: updated.guardianName || c.name,
+              email: updated.guardianEmail || c.email,
+              associatedInfo: `Parent / Guardian of ${updated.name || oldStudent?.name || 'Student'}`
+            };
+          }
+          return c;
+        })
       );
     }
   };
 
   const deleteStudent = (id: string) => {
+    const targetStudent = students.find(s => s.id === id);
+
     setStudents(prev => prev.filter(s => s.id !== id));
     setFeeRecords(prev => prev.filter(f => f.studentId !== id));
     setGrades(prev => prev.filter(g => g.studentId !== id));
-    setUserCredentials(prev => prev.filter(c => c.userId !== id));
+    setAttendance(prev => prev.filter(a => a.studentId !== id));
+
+    // Purge both Student credentials and linked Parent credentials automatically
+    setUserCredentials(prev =>
+      prev.filter(c => {
+        if (c.userId === id || c.userId === `parent-${id}`) return false;
+        if (
+          targetStudent &&
+          (c.email === targetStudent.guardianEmail ||
+            c.name === targetStudent.guardianName ||
+            c.associatedInfo.includes(targetStudent.name))
+        ) {
+          return false;
+        }
+        return true;
+      })
+    );
+
+    if (targetStudent) {
+      addAuditLog(
+        'Delete Student Record',
+        `Permanently deleted student ${targetStudent.name} (${targetStudent.gradeLevel}) and purged linked parent portal credentials.`,
+        'danger'
+      );
+    }
   };
 
   // Teacher CRUD
