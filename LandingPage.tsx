@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSchoolData } from '../../context/SchoolDataContext';
 import { getInitialsAvatar } from '../../utils/avatar';
-import { UserRole } from '../../types';
 import { AboutSchoolModal } from './AboutSchoolModal';
 import {
   ShieldAlert,
@@ -18,7 +17,6 @@ import {
   Info,
   Eye,
   EyeOff,
-  UserCheck,
   ShieldCheck,
   KeyRound,
   LogIn
@@ -98,6 +96,8 @@ export const LandingPage: React.FC = () => {
       // Check password first or email string
       if (passLower === 'admin123' || passLower === 'admin' || emailLower.includes('admin')) {
         login('admin');
+      } else if (passLower === 'bursar123' || passLower === 'accountant123' || passLower === 'bursar' || emailLower.includes('bursar') || emailLower.includes('accountant') || emailLower.includes('finance')) {
+        login('bursar');
       } else if (passLower === 'parent123' || passLower === 'parent' || emailLower.includes('parent') || emailLower.includes('guardian')) {
         login('parent');
       } else if (passLower === 'teacher123' || passLower === 'teacher' || emailLower.includes('teacher') || teachers.some(t => emailLower.includes(t.name.toLowerCase().split(' ')[0]))) {
@@ -119,7 +119,6 @@ export const LandingPage: React.FC = () => {
           login('teacher');
         }
       } else {
-        // Default fallback to Admin
         login('admin');
       }
       setIsAuthenticating(false);
@@ -136,7 +135,7 @@ export const LandingPage: React.FC = () => {
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight text-slate-900 sm:text-xl">
+              <h1 className="text-lg font-black tracking-tight text-slate-900 sm:text-xl font-heading">
                 Kidshine Montessori School
               </h1>
               <p className="text-[11px] font-bold text-blue-700">
@@ -198,7 +197,7 @@ export const LandingPage: React.FC = () => {
       {/* Main Single Unified Portal Login Card - Centered */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 pt-8 pb-16 flex-1 w-full">
         <div className="max-w-md mx-auto">
-          {/* Solution 1: Single Unified Login Card */}
+          {/* Single Unified Login Card */}
           <div className="rounded-3xl border border-blue-200 bg-white p-6 sm:p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center gap-3 border-b border-slate-100 pb-4 dark:border-slate-800">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-700 text-white shadow-md">
@@ -229,28 +228,6 @@ export const LandingPage: React.FC = () => {
                   placeholder="name@kidshinemontessori.edu.gh"
                   className="w-full rounded-xl border border-slate-300 bg-white p-2.5 text-xs font-bold text-slate-900 focus:border-blue-700 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
-              </div>
-
-              {/* Demo Account Switcher Dropdown (For Testing & Demos) */}
-              <div className="rounded-xl bg-slate-50 border border-slate-200 p-2.5 dark:bg-slate-800/60 dark:border-slate-700">
-                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1">
-                  ⚡ Quick Demo Account Selector
-                </label>
-                <select
-                  value={emailInput}
-                  onChange={e => {
-                    const val = e.target.value;
-                    if (val.includes('admin')) handleQuickDemoSelect(val, 'admin123');
-                    else if (val.includes('parent')) handleQuickDemoSelect(val, 'parent123');
-                    else handleQuickDemoSelect(val, 'teacher123');
-                  }}
-                  className="w-full rounded-lg border border-slate-300 bg-white p-2 text-xs font-bold text-slate-900 focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-white cursor-pointer"
-                >
-                  <option value="admin@kidshinemontessori.edu.gh">Demo Account 1 (admin@kidshinemontessori.edu.gh)</option>
-                  <option value="joseph.appiah@kidshinemontessori.edu.gh">Demo Account 2 (joseph.appiah@kidshinemontessori.edu.gh)</option>
-                  <option value="elizabeth.baah@kidshinemontessori.edu.gh">Demo Account 3 (elizabeth.baah@kidshinemontessori.edu.gh)</option>
-                  <option value="parent@kidshinemontessori.edu.gh">Demo Account 4 (parent@kidshinemontessori.edu.gh)</option>
-                </select>
               </div>
 
               {/* Password Input with Show/Hide Toggle */}
