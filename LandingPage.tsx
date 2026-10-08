@@ -24,16 +24,16 @@ import {
 
 export const LandingPage: React.FC = () => {
   const { login } = useAuth();
-  const { teachers, students, classrooms } = useSchoolData();
+  const { teachers, students, classrooms, userCredentials } = useSchoolData();
 
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   // Unified Login State (Role-Free)
-  const [emailInput, setEmailInput] = useState<string>('admin@kidshinemontessori.edu.gh');
-  const [selectedTeacherId, setSelectedTeacherId] = useState<string>('');
-  const [password, setPassword] = useState('admin123');
+  const [emailInput, setEmailInput] = useState<string>('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [authError, setAuthError] = useState('');
 
   const phrases = [
     "Kidshine Montessori School",
@@ -74,53 +74,59 @@ export const LandingPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [typedText, isDeleting, loopIndex]);
 
-  useEffect(() => {
-    if (teachers.length > 0 && !selectedTeacherId) {
-      setSelectedTeacherId(teachers[0].id);
-    }
-  }, [teachers]);
-
-  const handleQuickDemoSelect = (selectedEmail: string, defaultPass: string) => {
-    setEmailInput(selectedEmail);
-    setPassword(defaultPass);
-  };
-
   const handleUnifiedSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError('');
     setIsAuthenticating(true);
 
     setTimeout(() => {
-      const emailLower = emailInput.trim().toLowerCase();
-      const passLower = password.trim().toLowerCase();
+      const emailClean = emailInput.trim().toLowerCase();
+      const passClean = password.trim();
 
-      // Check password first or email string
-      if (passLower === 'admin123' || passLower === 'admin' || emailLower.includes('admin')) {
-        login('admin');
-      } else if (passLower === 'bursar123' || passLower === 'accountant123' || passLower === 'bursar' || emailLower.includes('bursar') || emailLower.includes('accountant') || emailLower.includes('finance')) {
-        login('bursar');
-      } else if (passLower === 'parent123' || passLower === 'parent' || emailLower.includes('parent') || emailLower.includes('guardian')) {
-        login('parent');
-      } else if (passLower === 'teacher123' || passLower === 'teacher' || emailLower.includes('teacher') || teachers.some(t => emailLower.includes(t.name.toLowerCase().split(' ')[0]))) {
-        const foundTch = teachers.find(t => 
-          emailLower.includes(t.name.toLowerCase().split(' ')[0]) || 
-          t.id === selectedTeacherId
-        ) || teachers[0];
+      const envAdminEmail = (import.meta.env.VITE_ADMIN_EMAIL || 'admin@kidshinemontessori.edu.gh').toLowerCase();
+      const envAdminPass = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
 
-        if (foundTch) {
-          login('teacher', {
-            id: foundTch.id,
-            name: foundTch.name,
-            email: `${foundTch.name.toLowerCase().replace(/[^a-z]/g, '.')}@kidshinemontessori.edu.gh`,
-            role: 'teacher',
-            avatar: foundTch.avatar || getInitialsAvatar(foundTch.name),
-            phone: foundTch.phone
-          });
-        } else {
-          login('teacher');
-        }
-      } else {
+      // 1. Check Protected Admin Master Environment Variables or admin123
+      if (
+        (emailClean === envAdminEmail || emailClean.includes('admin')) &&
+        (passClean === envAdminPass || passClean === 'admin123' || passClean === 'admin')
+      ) {
         login('admin');
+        setIsAuthenticating(false);
+        return;
       }
+
+      // 2. Check Database Credentials Store
+      const matchedCred = userCredentials.find(
+        c => c.email.toLowerCase() === emailClean && c.password === passClean
+      );
+
+      if (matchedCred) {
+        login(matchedCred.role, {
+          id: matchedCred.userId,
+          name: matchedCred.name,
+          email: matchedCred.email,
+          role: matchedCred.role,
+          avatar: getInitialsAvatar(matchedCred.name)
+        });
+        setIsAuthenticating(false);
+        return;
+      }
+
+      // 3. Fallback Heuristics for Demo Role Auto-Routing
+      const passLower = passClean.toLowerCase();
+      if (passLower === 'admin123' || passLower === 'admin') {
+        login('admin');
+      } else if (passLower === 'bursar123' || passLower === 'accountant123' || emailClean.includes('bursar') || emailClean.includes('accountant')) {
+        login('bursar');
+      } else if (passLower === 'parent123' || emailClean.includes('parent') || emailClean.includes('guardian')) {
+        login('parent');
+      } else if (passLower === 'teacher123' || emailClean.includes('teacher')) {
+        login('teacher');
+      } else {
+        setAuthError('Invalid email address or password. Please check your credentials and try again.');
+      }
+
       setIsAuthenticating(false);
     }, 400);
   };
@@ -212,6 +218,12 @@ export const LandingPage: React.FC = () => {
                 </p>
               </div>
             </div>
+
+            {authError && (
+              <div className="mt-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs font-bold text-rose-800 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-300">
+                {authError}
+              </div>
+            )}
 
             <form onSubmit={handleUnifiedSubmit} className="mt-6 space-y-4">
               {/* Account Email Input */}
