@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   // Structured Module Groups for Admin Role
   const adminGroups: Record<string, NavGroup> = {
     school: {
-      title: '1. School Portal',
+      title: 'School Portal',
       icon: Building2,
       items: [
         { id: 'overview', label: 'Overview Dashboard', icon: LayoutDashboard },
@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ]
     },
     academics: {
-      title: '2. Academics',
+      title: 'Academics',
       icon: BookOpen,
       items: [
         { id: 'classes', label: 'Classes & Subjects', icon: Building2 },
@@ -88,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ]
     },
     students: {
-      title: '3. Students & Parents',
+      title: 'Students & Parents',
       icon: GraduationCap,
       items: [
         { id: 'students', label: 'Student Directory', icon: GraduationCap },
@@ -97,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ]
     },
     staff: {
-      title: '4. Faculty & Staff',
+      title: 'Faculty & Staff',
       icon: Users,
       items: [
         { id: 'staff', label: 'Staff Directory', icon: Users },
@@ -106,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ]
     },
     finance: {
-      title: '5. Accounts & Finance',
+      title: 'Accounts & Finance',
       icon: Wallet,
       items: [
         { id: 'fees', label: 'Fee Ledgers & Alerts', icon: Wallet },
@@ -114,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ]
     },
     exams: {
-      title: '6. Examination & Reports',
+      title: 'Examination & Reports',
       icon: FileText,
       items: [
         { id: 'report-card', label: 'Terminal Report Cards', icon: FileText },
@@ -122,7 +122,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ]
     },
     extensions: {
-      title: '7. Specialized Extensions',
+      title: 'Specialized Extensions',
       icon: Library,
       items: [
         { id: 'library', label: 'Library Catalog', icon: Library, badge: 'ADD-ON' },
@@ -147,6 +147,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'overview', label: 'Children Overview', icon: LayoutDashboard },
     { id: 'assignments', label: 'Homework & Assignments', icon: BookOpen },
     { id: 'report-card', label: 'Terminal Report Card', icon: FileText },
+    { id: 'notices', label: 'School Announcements', icon: Bell }
+  ];
+
+  const bursarNav = [
+    { id: 'fees', label: 'Tuition Fee Ledgers & Calls', icon: Wallet },
+    { id: 'finances', label: 'Expenses & Budgets', icon: PieChart },
     { id: 'notices', label: 'School Announcements', icon: Bell }
   ];
 
@@ -264,7 +270,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Menu Navigation
               </div>
-              {(role === 'teacher' ? teacherNav : parentNav).map(item => {
+              {(role === 'teacher' ? teacherNav : role === 'parent' ? parentNav : bursarNav).map(item => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
                 return (
