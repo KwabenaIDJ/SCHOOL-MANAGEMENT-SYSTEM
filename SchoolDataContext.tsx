@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { getInitialsAvatar } from '../utils/avatar';
 import {
   Student,
@@ -16,6 +17,7 @@ import {
   IncomeRecord,
   DepartmentBudget,
   UserCredentialItem,
+  UserRole,
   AuditLogEntry
 } from '../types';
 import {
@@ -100,6 +102,16 @@ interface SchoolDataContextType {
   addTeacher: (teacher: Omit<Teacher, 'id' | 'empId'>) => void;
   updateTeacher: (id: string, updated: Partial<Teacher>) => void;
   deleteTeacher: (id: string) => void;
+  assignStaffRole: (
+    teacherId: string,
+    newRole: UserRole,
+    options: {
+      department?: string;
+      classTeacherOf?: string;
+      subjectsAssigned?: string[];
+      designationTitle?: string;
+    }
+  ) => void;
 
   // Administrator CRUD
   addAdministrator: (name: string, email: string, title?: string, customPassword?: string) => void;
@@ -277,6 +289,58 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   useEffect(() => {
     localStorage.setItem('sms_budgets', JSON.stringify(departmentBudgets));
   }, [departmentBudgets]);
+
+  // Sync state from Supabase Cloud PostgreSQL Database
+  useEffect(() => {
+    const fetchSupabaseCloudData = async () => {
+      try {
+        const { data: cloudStudents, error: sErr } = await supabase.from('students').select('*');
+        if (!sErr && cloudStudents && cloudStudents.length > 0) {
+          const mappedStudents: Student[] = cloudStudents.map(s => ({
+            id: s.id,
+            rollNo: s.roll_no,
+            name: s.full_name,
+            email: s.guardian_email || `${s.roll_no.toLowerCase()}@student.school`,
+            gradeLevel: s.grade_level,
+            gender: s.gender || 'Male',
+            status: 'Active',
+            dob: s.dob || '2015-05-12',
+            guardianName: s.guardian_name,
+            guardianEmail: s.guardian_email,
+            guardianPhone: s.guardian_phone,
+            address: s.address || 'Accra, Ghana',
+            totalTuition: Number(s.total_tuition || 1200),
+            paidTuition: Number(s.paid_tuition || 0),
+            feeBalance: Number(s.fee_balance || 1200),
+            attendancePercentage: 95,
+            gpa: 3.5,
+            joinedDate: new Date(s.created_at || Date.now()).toISOString().split('T')[0],
+            avatar: s.avatar_url || getInitialsAvatar(s.full_name)
+          }));
+          setStudents(mappedStudents);
+        }
+
+        const { data: cloudUsers, error: uErr } = await supabase.from('users').select('*');
+        if (!uErr && cloudUsers && cloudUsers.length > 0) {
+          const mappedCreds: UserCredentialItem[] = cloudUsers.map(u => ({
+            id: u.id,
+            userId: u.id,
+            name: u.full_name,
+            email: u.email,
+            role: u.role,
+            password: u.password_hash,
+            associatedInfo: u.associated_info || '',
+            lastChanged: new Date(u.created_at).toISOString().split('T')[0]
+          }));
+          setUserCredentials(mappedCreds);
+        }
+      } catch (err) {
+        console.warn('Supabase cloud sync notification:', err);
+      }
+    };
+
+    fetchSupabaseCloudData();
+  }, []);
 
   const addExpense = (expenseData: Omit<ExpenseRecord, 'id'>) => {
     const newExpense: ExpenseRecord = {
@@ -630,6 +694,81 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const deleteTeacher = (id: string) => {
     setTeachers(prev => prev.filter(t => t.id !== id));
     setUserCredentials(prev => prev.filter(c => c.userId !== id));
+  };
+
+  const assignStaffRole = (
+    teacherId: string,
+    newRole: UserRole,
+    options: {
+      department?: string;
+      classTeacherOf?: string;
+      subjectsAssigned?: string[];
+      designationTitle?: string;
+    }
+  ) => {
+    const targetTeacher = teachers.find(t => t.id === teacherId);
+    if (!targetTeacher) return;
+
+    // 1. Update Teacher in state
+    setTeachers(prev =>
+      prev.map(t => {
+        if (t.id === teacherId) {
+          return {
+            ...t,
+            department: options.department ?? t.department,
+            classTeacherOf: options.classTeacherOf !== undefined ? options.classTeacherOf : t.classTeacherOf,
+            subjectsAssigned: options.subjectsAssigned ?? t.subjectsAssigned
+          };
+        }
+        return t;
+      })
+    );
+
+    // 2. Update or insert into UserCredentials
+    const roleTitle =
+      options.designationTitle ||
+      (newRole === 'bursar'
+        ? 'School Bursar / Accountant'
+        : newRole === 'admin'
+        ? 'Administrator'
+        : `Class Teacher: ${options.classTeacherOf || targetTeacher.department}`);
+
+    setUserCredentials(prev => {
+      const exists = prev.find(
+        c => c.userId === teacherId || (targetTeacher.email && c.email.toLowerCase() === targetTeacher.email.toLowerCase())
+      );
+      if (exists) {
+        return prev.map(c =>
+          c.id === exists.id
+            ? {
+                ...c,
+                role: newRole,
+                associatedInfo: `${roleTitle} • ${options.department || targetTeacher.department}`,
+                lastChanged: new Date().toISOString().split('T')[0]
+              }
+            : c
+        );
+      } else {
+        const newCred: UserCredentialItem = {
+          id: `cred-tch-${Date.now()}`,
+          userId: teacherId,
+          name: targetTeacher.name,
+          email: targetTeacher.email || `${targetTeacher.name.toLowerCase().replace(/[^a-z]/g, '.')}@kidshinemontessori.edu.gh`,
+          role: newRole,
+          password: `STAFF-${Math.floor(1000 + Math.random() * 9000)}`,
+          associatedInfo: `${roleTitle} • ${options.department || targetTeacher.department}`,
+          lastChanged: new Date().toISOString().split('T')[0]
+        };
+        return [newCred, ...prev];
+      }
+    });
+
+    // 3. Record Audit Log
+    addAuditLog(
+      'Assign Staff Role',
+      `Assigned ${targetTeacher.name} to role "${newRole.toUpperCase()}" (${roleTitle}).`,
+      'info'
+    );
   };
 
   const addAdministrator = (name: string, email: string, title?: string, customPassword?: string) => {
@@ -1041,6 +1180,7 @@ export const SchoolDataProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         addTeacher,
         updateTeacher,
         deleteTeacher,
+        assignStaffRole,
         addAdministrator,
         addClassroom,
         updateClassroom,
